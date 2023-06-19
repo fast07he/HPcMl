@@ -1,0 +1,596 @@
+Practical 1: Simple Linear Regression
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+#Load dataset
+df = pd.read_csv("hw.csv")
+
+X = df.drop("weight", axis='columns')
+y = df['weight']
+
+#from sklearn subpackage import linear regression model
+from sklearn.linear_model import LinearRegression
+regressor=LinearRegression()
+regressor.fit(X,y)
+
+#To get the slop
+print("M =",regressor.coef_)
+
+#To get the y intercept
+print("c =",regressor.intercept_)
+
+#To print the equation of line
+print("y = "+ str(regressor.coef_) + "X + " + str(regressor.intercept_))
+
+#To get the slop
+print("Accuracy:",regressor.score(X,y)*100)
+
+
+#To plot graph
+plt.plot(X,y,'o')
+plt.plot(X,regressor.predict(X));
+plt.show()
+predict_x=int(input('Enter Height:'))
+predict_y=(0.67461045*predict_x)-38.45508707607698
+plt.scatter(X,y)
+plt.scatter(predict_x,predict_y) 
+plt.xlabel('Enter Height:(Predicted_x)') 
+plt.ylabel('Enter Weight:(Predicted_y)')
+
+#plotting the Predicted regression line 
+plt.plot(X,regressor.predict(X),color='green');
+plt.show()
+
+
+Practical 2: Decision Tree Classifier
+
+#import packages
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+#reading Dataset
+df = pd.read_csv("DT-Data.csv")
+
+X = df.drop("buys", axis=1)
+y = df["buys"]
+
+#Perform Label encoding
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
+X = X.apply(LabelEncoder().fit_transform)
+print (X)
+
+from sklearn.tree import DecisionTreeClassifier
+regressor=DecisionTreeClassifier()
+regressor.fit(X.iloc[:,1:5],y)
+
+X_pred = np.array([0,1,0,1])
+y_pred = regressor.predict([X_pred])
+print ("Prediction:", y_pred)
+
+
+Practical 3: Principle Component Analysis
+
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn import datasets
+%matplotlib inline
+plt.style.use('seaborn')
+
+df = pd.read_csv("iris.csv")
+
+X = df.drop("species", axis=1)
+y = df["species"]
+
+plt.figure(4, figsize=(8, 6))
+plt.clf()
+
+# Plot the training points
+plt.scatter(X['sepal_length'], X['sepal_width'], s=35, cmap=plt.cm.brg)
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.title('Sepal length vs. Sepal width')
+plt.show()
+
+col = X.columns
+
+from sklearn.preprocessing import StandardScaler
+X = StandardScaler().fit_transform(X)
+
+pd.DataFrame(data = X, columns = col).head()
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+principalComponents = pca.fit_transform(X)
+principalDf = pd.DataFrame(data = principalComponents,columns = ['principal component 1', 'principal component 2'])
+principalDf.head()
+
+principalDf.shape
+
+colors = ['red', 'green', 'blue']
+plt.scatter(principalComponents[:,0],principalComponents[:,1])
+
+
+Practical 4:
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix
+
+dataset=pd.read_csv("iris.csv")
+
+#Spliting the dataset in independent and dependent variables
+X = dataset.iloc[:,:4].values
+y = dataset['species'].values
+
+# Splitting the dataset into the Training set and Test set
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, random_state = 82)
+
+# Feature Scaling to bring the variable in a single scale
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+# Fitting Naive Bayes Classification to the Training set with linear kernel
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+y_pred = nb.predict(X_test)
+
+# Making the Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+#finding accuracy from the confusion matrix.
+a = cm.shape
+corrPred = 0
+falsePred = 0
+
+for row in range(a[0]):
+    for c in range(a[1]):
+        if row == c:
+            corrPred +=cm[row,c]
+        else:
+            falsePred += cm[row,c]
+print('Correct predictions: ', corrPred)
+print('False predictions', falsePred)
+print ('\n\nAccuracy of the Naive Bayes Clasification is: ', corrPred/(cm.sum()))
+
+Practical 5: K-Means Clusturing
+
+#import packages
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+#create dataset using DataFrame
+df=pd.DataFrame({'X':[0.1,0.15,0.08,0.16,0.2,0.25,0.24,0.3],
+                 'y':[0.6,0.71,0.9,0.85,0.3,0.5,0.1,0.2]})
+f1 = df['X'].values
+f2 = df['y'].values
+X = np.array(list(zip(f1, f2)))
+print(X)
+
+#centroid points
+C_x=np.array([0.1,0.3])
+C_y=np.array([0.6,0.2])
+centroids=C_x,C_y
+
+#plot the given points
+colmap = {1: 'r', 2: 'b'}
+plt.scatter(f1, f2, color='k')
+plt.show()
+
+#for i in centroids():
+plt.scatter(C_x[0],C_y[0], color=colmap[1])
+plt.scatter(C_x[1],C_y[1], color=colmap[2])
+plt.show()
+
+C = np.array(list((C_x, C_y)), dtype=np.float32)
+print (C)
+
+#plot given elements with centroid elements
+plt.scatter(f1, f2, c='#050505')
+print("point No.6[0.25,0.5] is belongs to blue cluster(cluster no:2)")
+plt.scatter(C_x[0], C_y[0], marker='*', s=200, c='r')
+plt.scatter(C_x[1], C_y[1], marker='*', s=200, c='b')
+plt.show()
+
+
+#import KMeans class and create object of it
+from sklearn.cluster import KMeans
+model=KMeans(n_clusters=2,random_state=0)
+model.fit(X)
+labels=model.labels_
+print(labels)
+
+#using labels find population around centroid
+count=0
+for i in range(len(labels)):
+    if (labels[i]==1):
+        count=count+1
+
+print('No of population around cluster 2:',count-1)
+	
+#Find new centroids
+new_centroids = model.cluster_centers_
+
+print('Previous value of m1 and m2 is:')
+print('M1==',centroids[0])
+print('M1==',centroids[1])
+
+print('Updated value of m1 and m2 is:')
+print('M1==',new_centroids[0])
+print('M1==',new_centroids[1])
+
+Practical 6: Parallel K-Nearest Neigbour
+
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import style
+import pandas as pd
+import random
+from collections import Counter
+from sklearn import preprocessing
+from itertools import repeat
+import multiprocessing as mp
+import time
+
+#for plotting
+plt.style.use('ggplot')
+
+class CustomKNN:
+	
+	def __init__(self):
+		self.accurate_predictions = 0
+		self.total_predictions = 0
+		self.accuracy = 0.0
+
+	def predict(self, training_data, to_predict, k = 3):
+		if len(training_data) >= k:
+			print("K cannot be smaller than the total voting groups(ie. number of training data points)")
+			return
+		
+		distributions = []
+		for group in training_data:
+			for features in training_data[group]:
+				# Find euclidean distance using the numpy function
+				euclidean_distance = np.linalg.norm(np.array(features)- np.array(to_predict))
+				distributions.append([euclidean_distance, group])
+		# Find the k nearest neighbors
+		results = [i[1] for i in sorted(distributions)[:k]]
+		# Figure out which is the most common class amongst the neighbors.
+		result = Counter(results).most_common(1)[0][0]
+		confidence = Counter(results).most_common(1)[0][1]/k
+		
+		return result, to_predict
+
+	def test(self, test_set, training_set):
+		pool = mp.Pool(processes= 8)
+
+		arr = {}
+		s = time.perf_counter()
+		
+		# Where the magic happens, this is where we parallelize our code. While testing for the classes of incoming points,
+		# we divide the incoming data points and feed them into the predict funtion in parallel.
+		# I have used the starpmap function of multiprocessing library for this purpose. 
+		# The training data gets repeated to get an iterable of the training dataset for the map function, ie. the predict funtion, to be applied on.
+		for group in test_set:
+			arr[group] =  pool.starmap(self.predict, zip(repeat(training_set), test_set[group], repeat(3)))
+		e = time.perf_counter()
+
+		#Calculating Accuracy - The accuracy code has to be modified due to the induced parallelism. 
+		# It is no longer possible to determinstically calculate the accurate predictions where multiple subprocesses are doing the same increment.
+
+		for group in test_set:
+			for data in test_set[group]:
+				for i in arr[group]:
+					if data == i[1]:
+						self.total_predictions += 1
+						if group == i[0]:
+							self.accurate_predictions+=1
+		
+		self.accuracy = 100*(self.accurate_predictions/self.total_predictions)
+		print("\nAcurracy :", str(self.accuracy) + "%")
+
+def mod_data(df):
+	df.replace('?', -999999, inplace = True)
+	
+	df.replace('yes', 4, inplace = True)
+	df.replace('no', 2, inplace = True)
+
+	df.replace('notpresent', 4, inplace = True)
+	df.replace('present', 2, inplace = True)
+	
+	df.replace('abnormal', 4, inplace = True)
+	df.replace('normal', 2, inplace = True)
+	
+	df.replace('poor', 4, inplace = True)
+	df.replace('good', 2, inplace = True)
+	
+	df.replace('ckd', 4, inplace = True)
+	df.replace('notckd', 2, inplace = True)
+
+def main():
+	df = pd.read_csv("chronic_kidney_disease.csv")
+	mod_data(df)
+	dataset = df.astype(float).values.tolist()
+	
+	#Normalize the data
+	x = df.values #returns a numpy array
+	min_max_scaler = preprocessing.MinMaxScaler()
+	x_scaled = min_max_scaler.fit_transform(x)
+	df = pd.DataFrame(x_scaled) #Replace df with normalized values
+
+	#Shuffle the dataset
+	random.shuffle(dataset)
+
+	#20% of the available data will be used for testing
+	test_size = 0.1
+
+	#The keys of the dict are the classes that the data is classfied into
+	training_set = {2: [], 4:[]}
+	test_set = {2: [], 4:[]}
+	
+	#Split data into training and test for cross validation
+	training_data = dataset[:-int(test_size * len(dataset))]
+	test_data = dataset[-int(test_size * len(dataset)):]
+	
+	#Insert data into the training set
+	for record in training_data:
+		training_set[record[-1]].append(record[:-1]) # Append the list in the dict will all the elements of the record except the class
+
+	#Insert data into the test set
+	for record in test_data:
+		test_set[record[-1]].append(record[:-1]) # Append the list in the dict will all the elements of the record except the class
+	
+	s = time.perf_counter()
+	knn = CustomKNN()
+	knn.test(test_set, training_set)
+	e = time.perf_counter()
+	
+	print("Exec Time: ", e-s)
+	
+if __name__ == "__main__":
+	main()  
+
+
+Practical 7: Parallel Vector and Matrix
+
+#Vector Addition
+import random
+import numpy as np
+import time
+
+N = 10000000
+
+# Addition of two vectors
+a = [random.randint(0, N) for _ in range(N)]
+b = [random.randint(0, N) for _ in range(N)]
+c = np.zeros(N, dtype=int)
+
+start = time.time()
+for i in range(N):
+    c[i] = b[i] + a[i]
+duration = time.time() - start
+print("Serial vector addition:", duration)
+
+start = time.time()
+c_parallel = np.add(a, b)
+duration = time.time() - start
+print("Parallel vector addition:", duration)
+
+# Print addition results
+print("Addition results:")
+print("Serial:   ", c)
+print("Parallel: ", c_parallel)
+
+print("***********************************")
+
+
+#Multiply Vector and Matrix
+import random
+import numpy as np
+import time
+
+M = 700
+
+# Multiply Vector and matrix
+A = np.random.randint(0, M, size=(M, M))
+a = np.random.randint(0, M, size=M)
+d = np.zeros(M, dtype=int)
+
+# Serial multiplication
+start = time.time()
+for i in range(M):
+    sum = 0
+    for j in range(M):
+        sum += A[i][j] * a[j]
+    d[i] = sum
+serial_duration = time.time() - start
+print("Serial Multiply Vector and matrix:", serial_duration)
+
+# Parallel multiplication
+start = time.time()
+d_parallel = np.dot(A, a)
+parallel_duration = time.time() - start
+print("Parallel Multiply Vector and matrix:", parallel_duration)
+
+# Print multiplication results
+print("Multiplication results:")
+print("Serial:   ", d)
+print("Parallel: ", d_parallel)
+
+print("***********************************")
+
+#Multiply N*N arrays
+import random
+import numpy as np
+import time
+from multiprocessing import Pool
+
+N = 100
+
+A = np.random.randint(0, N, size=(N, N))
+B = np.random.randint(0, N, size=(N, N))
+C = np.zeros((N, N), dtype=int)
+
+def multiply_element(i, j):
+    result = 0
+    for k in range(N):
+        result += A[i][k] * B[k][j]
+    return result
+
+# Serial matrix multiplication
+start = time.time()
+for i in range(N):
+    for j in range(N):
+        C[i][j] = 0
+        for k in range(N):
+            C[i][j] += A[i][k] * B[k][j]
+serial_duration = time.time() - start
+print("Serial Multiply Matrix and matrix:", serial_duration)
+
+# Parallel matrix multiplication
+start = time.time()
+pool = Pool()  # Create a pool of worker processes
+indices = [(i, j) for i in range(N) for j in range(N)]
+results = pool.starmap(multiply_element, indices)  # Apply the function to each element in parallel
+pool.close()
+pool.join()
+
+# Reshape the results into a matrix
+C_parallel = np.array(results).reshape((N, N))
+parallel_duration = time.time() - start
+print("Parallel Multiply Matrix and matrix:", parallel_duration)
+
+# Print multiplication results
+print("Multiplication results:")
+print("Serial:   ")
+print(C)
+print("Parallel: ")
+print(C_parallel)
+
+print("***********************************")
+
+
+
+Practical 8: Parallel Sorting
+
+#Bubble sort
+import random
+import time
+from datetime import datetime
+from multiprocessing import Pool
+
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+
+def bubble_sort_parallel(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(i % 2, n-1, 2):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+    return arr
+
+def main():
+    a = [random.randint(0, 10000) for _ in range(10000)]
+    print("Unsorted Array:")
+    print(a)
+
+    # Serial sorting
+    start = datetime.now()
+    bubble_sort(a)
+    end = datetime.now()
+    duration = end - start
+    print("Serial Sorted Array:")
+    print(a)
+    print("Serial Duration:", duration)
+
+    a = [random.randint(0, 10000) for _ in range(10000)]
+
+    # Parallel sorting
+    print("\nParallel Sorting...")
+
+    start = datetime.now()
+    pool = Pool()
+    result = pool.apply_async(bubble_sort_parallel, (a,))
+    a = result.get()
+    pool.close()
+    pool.join()
+    end = datetime.now()
+    duration = end - start
+    print("Parallel Sorted Array:")
+    print(a)
+    print("Parallel Duration:", duration)
+
+if __name__ == "__main__":
+    main()
+
+#merge sort
+import concurrent.futures
+import time
+
+def merge(a, i1, j1, i2, j2):
+    temp = []
+    i, j = i1, i2
+    while i <= j1 and j <= j2:
+        temp.append(a[i] if a[i] < a[j] else a[j])
+        i, j = (i + 1, j) if a[i] < a[j] else (i, j + 1)
+    temp.extend(a[i: j1 + 1])
+    temp.extend(a[j: j2 + 1])
+    a[i1: j2 + 1] = temp
+
+def mergesort(a, i, j):
+    if i < j:
+        mid = (i + j) // 2
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future1 = executor.submit(mergesort, a, i, mid)
+            future2 = executor.submit(mergesort, a, mid + 1, j)
+            future1.result()
+            future2.result()
+        merge(a, i, mid, mid + 1, j)
+
+if __name__ == "__main__":
+    a = [3, 44, 38, 5, 47, 15, 36, 26, 27, 2, 46, 4, 19, 1, 50, 48]
+
+    print("Unsorted array:")
+    for element in a:
+        print(element)
+
+    # Serial sorting
+    a_serial = a.copy()
+    start_serial = time.time()
+    mergesort(a_serial, 0, len(a_serial) - 1)
+    end_serial = time.time()
+    print("\nSerial Sorted array:")
+    for element in a_serial:
+        print(element)
+    print("Serial Execution time:", end_serial - start_serial, "seconds")
+
+    # Parallel sorting
+    a_parallel = a.copy()
+    start_parallel = time.time()
+    mergesort(a_parallel, 0, len(a_parallel) - 1)
+    end_parallel = time.time()
+    print("\nParallel Sorted array:")
+    for element in a_parallel:
+        print(element)
+    print("Parallel Execution time:", end_parallel - start_parallel, "seconds")
+
